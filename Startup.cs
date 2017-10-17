@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NLog.Extensions.Logging;
 using NLog.Web;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,7 +30,6 @@ namespace webapi
             this.Configuration = builder.Build();
         }
 
-        public IContainer ApplicationContainer { get; private set; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -74,12 +71,6 @@ namespace webapi
             app.AddNLogWeb();
 
             app.UseMvc();
-
-            // If you want to dispose of resources that have been resolved in the
-            // application container, register for the "ApplicationStopped" event.
-            // You can only do this if you have a direct reference to the container,
-            // so it won't work with the above ConfigureContainer mechanism.
-            appLifetime.ApplicationStopped.Register(() => this.ApplicationContainer.Dispose());
         }
     }
 }
