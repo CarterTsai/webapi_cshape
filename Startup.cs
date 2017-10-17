@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NLog.Extensions.Logging;
+using NLog.Web;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
@@ -11,21 +13,30 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using webapi.Framework.DAL;
 
 namespace webapi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            env.ConfigureNLog("nlog.config");
+
+            var builder = new ConfigurationBuilder()
+            .SetBasePath(env.ContentRootPath)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+            .AddEnvironmentVariables();
+
+            this.Configuration = builder.Build();
         }
 
         public IContainer ApplicationContainer { get; private set; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
 
@@ -33,21 +44,15 @@ namespace webapi
             {
                 c.SwaggerDoc("v1", new Info { Title = "API", Version = "v1" });
             });
-
+    
             // DI
-            // Create the container builder.
-            var builder = new ContainerBuilder();
-
-            builder.Populate(services);
-            //builder.Register(c => CacheServiceFactory.GetCacheServiceInterface()).As<ICacheServiceInterface>();
-            this.ApplicationContainer = builder.Build();
-
-            // Create the IServiceProvider based on the container.
-            return new AutofacServiceProvider(this.ApplicationContainer);
+            services.AddSingleton<IOperationTest>(new OperationTest());
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app,
+                              IHostingEnvironment env, IApplicationLifetime appLifetime, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -63,7 +68,18 @@ namespace webapi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
             });
 
+            //add NLog to ASP.NET Core
+            loggerFactory.AddNLog();
+            // add NLog.Web
+            app.AddNLogWeb();
+
             app.UseMvc();
+
+            // If you want to dispose of resources that have been resolved in the
+            // application container, register for the "ApplicationStopped" event.
+            // You can only do this if you have a direct reference to the container,
+            // so it won't work with the above ConfigureContainer mechanism.
+            appLifetime.ApplicationStopped.Register(() => this.ApplicationContainer.Dispose());
         }
     }
 }
