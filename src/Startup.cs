@@ -44,6 +44,12 @@ namespace webapi
     
             // DI
             services.AddSingleton<IOperationTest>(new OperationTest());
+            services.AddSingleton<ICache>(new Cache());
+            services.AddDistributedRedisCache(option =>
+            {
+                option.Configuration = "127.0.0.1";
+                option.InstanceName = "master";
+            });
             
         }
 
