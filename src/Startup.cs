@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using webapi.Framework.DAL;
+using webapi.Middleware;
 
 namespace webapi
 {
@@ -76,6 +77,8 @@ namespace webapi
             // add NLog.Web
             app.AddNLogWeb();
 
+            // add middleware
+            app.UseMiddleware(typeof(MiddlewareTest));
             app.UseMvc();
         }
     }
