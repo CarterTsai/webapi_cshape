@@ -72,11 +72,6 @@ namespace webapi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
             });
 
-            //add NLog to ASP.NET Core
-            loggerFactory.AddNLog();
-            // add NLog.Web
-            app.AddNLogWeb();
-
             // add middleware
             app.UseMiddleware(typeof(MiddlewareTest));
             app.UseMvc();
