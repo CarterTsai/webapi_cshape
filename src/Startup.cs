@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using webapi.Framework.DAL;
 using webapi.Middleware;
+using IdentityServer4;
 
 namespace webapi
 {
@@ -42,6 +43,9 @@ namespace webapi
             {
                 c.SwaggerDoc("v1", new Info { Title = "API", Version = "v1" });
             });
+
+            services.AddIdentityServer()
+            .AddDeveloperSigningCredential();
     
             // DI
             services.AddSingleton<IOperationTest>(new OperationTest());
