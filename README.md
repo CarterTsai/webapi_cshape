@@ -30,3 +30,11 @@ $> dotnet ef dbcontext scaffold "Server=.\;Database=AdventureWorksLT2012;Trusted
 
 * Postgre
 $> dotnet ef dbcontext scaffold "Host=localhost;Database=mydatabase;Username=myuser;Password=mypassword" Npgsql.EntityFrameworkCore.PostgreSQL --use-database-names --schema dbo -d  --output-dir Models
+
+
+
+4. RUN Development Model
+```
+$> export ASPNETCORE_ENVIRONMENT=development
+$> dotnet run
+```
