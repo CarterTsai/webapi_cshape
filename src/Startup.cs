@@ -40,13 +40,29 @@ namespace webapi
         {
             services.AddMvc();
 
+            services.AddMvcCore()
+            .AddAuthorization()
+            .AddJsonFormatters();
+
+            services.AddAuthentication("Bearer")
+            .AddIdentityServerAuthentication(options =>
+            {
+                options.Authority = "http://localhost:5050";
+                options.RequireHttpsMetadata = false;
+
+                options.ApiName = "api1";
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme() { In = "header", Description = "Please insert JWT with Bearer into field", Name = "access_token", Type = "apiKey" });
             });
 
             services.AddIdentityServer()
-            .AddDeveloperSigningCredential();
+            .AddDeveloperSigningCredential()
+            .AddInMemoryApiResources(Config.GetApiResources())
+            .AddInMemoryClients(Config.GetClients());
 
             // config
             // uses IOptions<T> for your settings.
@@ -94,6 +110,11 @@ namespace webapi
 
             // use session
             //app.UseSession();
+
+            //  Identity Server 
+            app.UseIdentityServer();
+
+            app.UseAuthentication();
 
             // add middleware
             app.UseMiddleware(typeof(MiddlewareTest));

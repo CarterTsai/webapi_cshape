@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -14,6 +15,7 @@ using webapi.Framework.DAL;
 namespace webapi.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class ValuesController : Controller
     {
         private readonly ILogger<ValuesController> _logger;
@@ -38,7 +40,7 @@ namespace webapi.Controllers
         }
 
         // Post api/values
-        [HttpPost]
+        [HttpGet]
         public async Task<string> Get()
         {
             try
