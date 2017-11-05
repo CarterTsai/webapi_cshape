@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using webapi.Framework.DAL;
 using webapi.Middleware;
 using IdentityServer4;
+using webapi.config;
 
 namespace webapi
 {
@@ -46,15 +47,30 @@ namespace webapi
 
             services.AddIdentityServer()
             .AddDeveloperSigningCredential();
-    
+
+            // config
+            // uses IOptions<T> for your settings.
+            services.AddOptions();
+            services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
             // DI
             services.AddSingleton<IOperationTest>(new OperationTest());
             services.AddSingleton<ICache>(new Cache());
+
+            // // Adds a default in-memory implementation of IDistributedCache.
+            // services.AddDistributedMemoryCache();
+
             services.AddDistributedRedisCache(option =>
             {
                 option.Configuration = "127.0.0.1";
                 option.InstanceName = "master";
             });
+
+            // services.AddSession(options =>
+            // {
+            //     // Set a short timeout for easy testing.
+            //     options.IdleTimeout = TimeSpan.FromSeconds(10);
+            //     options.Cookie.HttpOnly = true;
+            // });
             
         }
 
@@ -75,6 +91,9 @@ namespace webapi
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
                 });
             }
+
+            // use session
+            //app.UseSession();
 
             // add middleware
             app.UseMiddleware(typeof(MiddlewareTest));

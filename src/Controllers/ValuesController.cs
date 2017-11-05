@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using webapi.config;
 using webapi.Framework.DAL;
 
 namespace webapi.Controllers
@@ -20,15 +22,19 @@ namespace webapi.Controllers
         private readonly IOperationTest _iop;
         private readonly IDistributedCache _distributedCache;
 
+        private readonly SiteSettings _siteSettings;
+
         public ValuesController(IHostingEnvironment env,
                                 IDistributedCache distributedCache,
                                 ILogger<ValuesController> logger,
-                                IOperationTest iop)
+                                IOperationTest iop,
+                                IOptions<SiteSettings> settings)
         {
             _env = env;
             _logger = logger;
             _iop = iop;
             _distributedCache = distributedCache;
+            _siteSettings = settings.Value;
         }
 
         // Post api/values
@@ -40,7 +46,7 @@ namespace webapi.Controllers
                 await _distributedCache.SetStringAsync("abc", "123456789");
                 var x = _distributedCache.GetString("abc");
                 _logger.LogInformation(x);
-                return x;
+                return x + _siteSettings.SiteName;
             }
             catch (Exception ex)
             {
