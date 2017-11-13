@@ -25,7 +25,8 @@ $> dotnet restore
 
 3. Build
 * Mssql
-$> dotnet ef dbcontext scaffold "Server=.\;Database=AdventureWorksLT2012;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer --use-database-names --schema dbo -d --output-dir Models
+$> dotnet ef dbcontext scaffold "data source=127.0.0.1;initial catalog=test;persist security info=True;user id=test;password=test;" Microsoft.EntityFrameworkCore.SqlServer --use-database-names --schema dbo -d --output-dir Models
+
 
 
 * Postgre
